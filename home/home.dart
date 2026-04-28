@@ -1,11 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:online_shop/home/bottom_navigationBar.dart';
-import 'package:online_shop/pro_detail/product_detail.dart';
-import 'product_data.dart';
-import 'package:online_shop/favorite.dart';
-import 'package:online_shop/cart.dart';
-import 'package:online_shop/pf_detail/profile.dart';
-
 void main() {
   runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: Home()));
 }
