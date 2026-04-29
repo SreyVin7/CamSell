@@ -1,5 +1,16 @@
+import 'package:flutter/material.dart';
+import 'package:online_shop/home/bottom_navigationBar.dart';
+import 'package:online_shop/pro_detail/product_detail.dart';
+import 'product_data.dart';
+import 'package:online_shop/favorite.dart';
+import 'package:online_shop/cart.dart';
+import 'package:online_shop/pf_detail/profile.dart';
+
 void main() {
-  runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: Home()));
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: Home(),
+  ));
 }
 
 class Home extends StatefulWidget {
@@ -13,7 +24,7 @@ class _HomeState extends State<Home> {
   // --- Data Management ---
   String searchQuery = "";
   String selectedLanguage = "KH";
-  String selectedCategory = "ណែនាំ"; // សម្រាប់គ្រប់គ្រងការរើស Category
+  String selectedCategory = "ណែនាំ";
 
   final List<String> categories = [
     "ណែនាំ",
@@ -30,18 +41,17 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // Logic សម្រាប់ Filter ទំនិញតាមឈ្មោះ និងតាម Category
+    // Filter Products
     final filteredProducts = products.where((p) {
-      final matchesSearch = p['name']!.toLowerCase().contains(
-            searchQuery.toLowerCase(),
-          );
+      final matchesSearch =
+          p['name']!.toLowerCase().contains(searchQuery.toLowerCase());
       final matchesCategory =
           (selectedCategory == "ណែនាំ") || (p['category'] == selectedCategory);
       return matchesSearch && matchesCategory;
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xff0a0f1e),
+      backgroundColor: const Color.fromARGB(255, 27, 35, 61),
       bottomNavigationBar: const CustomBottomNav(currentPage: "home"),
       body: SafeArea(
         child: Column(
@@ -62,9 +72,12 @@ class _HomeState extends State<Home> {
                         mainAxisSpacing: 12,
                         childAspectRatio: 0.78,
                       ),
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        return _productCard(filteredProducts[index]);
-                      }, childCount: filteredProducts.length),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          return _productCard(filteredProducts[index]);
+                        },
+                        childCount: filteredProducts.length,
+                      ),
                     ),
                   ),
                 ],
@@ -76,88 +89,141 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // --- ១. Header (Red Glassmorphism Style) ---
+  // ==================== HEADER ====================
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
-      decoration: const BoxDecoration(
-        color: Color.fromARGB(255, 255, 255, 255),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 22),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(
+          bottom: Radius.circular(32),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          // Dropdown ភាសា
+          // Language Dropdown
           Container(
-            height: 45,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            height: 48, // ដំឡើងកម្ពស់បន្តិចដើម្បីឱ្យមើលទៅស្រឡះ
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 255, 0, 0).withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white24),
+              // ប្រើ Gradient ដើម្បីឱ្យពណ៌មើលទៅមានជម្រៅ (Depth)
+              gradient: const LinearGradient(
+                colors: [Color(0xfff62f2f), Color(0xffd32f2f)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16), // បង្កើនភាពមូលនៃជ្រុង
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xfff62f2f).withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4), // ស្រមោលធ្លាក់ចុះក្រោមតិចៗ
+                ),
+              ],
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: selectedLanguage,
-                dropdownColor: const Color(0xfff62f2f),
+                dropdownColor:
+                    const Color(0xff1b233d), // ពណ៌ផ្ទៃខាងក្រោយពេលចុចលើ Dropdown
                 icon: const Icon(
-                  Icons.keyboard_arrow_down_rounded,
+                  Icons
+                      .unfold_more_rounded, // ប្តូរ Icon ឱ្យមើលទៅប្លែក និងស្អាតជាងមុន
                   color: Colors.white,
+                  size: 20,
                 ),
+                alignment: Alignment.center, // ដាក់ឱ្យអក្សរនៅកណ្តាល
                 style: const TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800, // អក្សរដិតច្បាស់
+                  letterSpacing: 1.2,
                 ),
-                onChanged: (String? newValue) =>
-                    setState(() => selectedLanguage = newValue!),
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() => selectedLanguage = newValue);
+                  }
+                },
                 items: ['KH', 'EN']
-                    .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+                    .map((v) => DropdownMenuItem(
+                          value: v,
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              v,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ))
                     .toList(),
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          // ប្រអប់ស្វែងរក
+
+          const SizedBox(width: 10),
+
+          // Search Field
           Expanded(
             child: Container(
-              height: 45,
+              height: 46,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color(0xfff8f9fa),
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
               ),
               child: TextField(
                 onChanged: (value) => setState(() => searchQuery = value),
+                style: const TextStyle(fontSize: 15, color: Colors.black87),
                 decoration: const InputDecoration(
-                  hintText: "ស្វែងរក...",
-                  hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
+                  hintText: "ស្វែងរកផលិតផល...",
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
                   prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: Color(0xfff62f2f),
-                    size: 20,
+                    color: const Color(0xfff62f2f),
+                    size: 22,
                   ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 13,
+                    horizontal: 4,
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          // ប៊ូតុងស្វែងរក (បន្ថែមថ្មី)
+
+          const SizedBox(width: 10),
+
+          // Search Button
           SizedBox(
-            height: 45,
+            height: 46,
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xfff62f2f),
+                backgroundColor: const Color(0xfff62f2f),
+                foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
               ),
               child: const Text(
                 "ស្វែងរក",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
@@ -166,12 +232,12 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // --- ២. Category Bar (Logic Filtering) ---
+  // ==================== CATEGORY BAR ====================
   Widget _buildCategoryBar() {
     return Container(
       height: 55,
       decoration: BoxDecoration(
-        color: const Color(0xff111827),
+        color: const Color.fromARGB(255, 27, 35, 61),
         border: Border(
           bottom: BorderSide(color: Colors.white.withOpacity(0.05)),
         ),
@@ -180,13 +246,15 @@ class _HomeState extends State<Home> {
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          bool isSelected = selectedCategory == categories[index];
+          final category = categories[index];
+          final isSelected = selectedCategory == category;
+
           return GestureDetector(
-            onTap: () => setState(() => selectedCategory = categories[index]),
+            onTap: () => setState(() => selectedCategory = category),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 color:
                     isSelected ? const Color(0xfff62f2f) : Colors.transparent,
@@ -194,12 +262,11 @@ class _HomeState extends State<Home> {
               ),
               child: Center(
                 child: Text(
-                  categories[index],
+                  category,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.5,
                     color: isSelected ? Colors.white : Colors.white60,
-                    fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   ),
                 ),
               ),
@@ -210,7 +277,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // --- ៣. Social Section ---
+  // ==================== SOCIAL SECTION ====================
   Widget _buildSocialSection() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
@@ -234,30 +301,32 @@ class _HomeState extends State<Home> {
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
             shape: BoxShape.circle,
-            border: Border.all(color: color.withOpacity(0.2)),
+            border: Border.all(color: color.withOpacity(0.25)),
           ),
-          child: Icon(icon, color: color, size: 24),
+          child: Icon(icon, color: color, size: 26),
         ),
         const SizedBox(height: 8),
         Text(
           label,
           style: const TextStyle(
-              fontSize: 11, color: Color.fromARGB(162, 255, 255, 255)),
+            fontSize: 11,
+            color: Colors.white70,
+          ),
         ),
       ],
     );
   }
 
-  // --- ៤. Product Card (Premium Dark Design) ---
+  // ==================== PRODUCT CARD ====================
   Widget _productCard(Map<String, String> item) {
-    bool isFav = Favorite.favoriteItems.any(
+    final bool isFav = Favorite.favoriteItems.any(
       (e) => e['name'] == item['name'],
     );
 
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ProductDetail(product: item)),
+        MaterialPageRoute(builder: (_) => ProductDetail(product: item)),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -266,7 +335,7 @@ class _HomeState extends State<Home> {
           border: Border.all(color: Colors.white.withOpacity(0.08)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withOpacity(0.35),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -279,9 +348,8 @@ class _HomeState extends State<Home> {
               child: Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
                     child: Image.network(
                       item['img'] ?? '',
                       width: double.infinity,
@@ -289,8 +357,6 @@ class _HomeState extends State<Home> {
                       fit: BoxFit.cover,
                     ),
                   ),
-
-                  /// ❤️ FAVORITE BUTTON (FIXED)
                   Positioned(
                     top: 10,
                     right: 10,
@@ -302,20 +368,19 @@ class _HomeState extends State<Home> {
                             "price": item['price'] ?? "",
                             "image": item['img'] ?? "",
                           });
-
-                          setState(() {}); // 🔥 update UI
+                          setState(() {});
                         }
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.black26,
+                        padding: const EdgeInsets.all(7),
+                        decoration: const BoxDecoration(
+                          color: Colors.black38,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           isFav ? Icons.favorite : Icons.favorite_border,
                           color: isFav ? Colors.red : Colors.white,
-                          size: 18,
+                          size: 20,
                         ),
                       ),
                     ),
@@ -335,7 +400,7 @@ class _HomeState extends State<Home> {
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: 13.5,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -345,21 +410,19 @@ class _HomeState extends State<Home> {
                       Text(
                         "\$${item['price']}",
                         style: const TextStyle(
-                          color: Color.fromARGB(255, 111, 255, 0),
+                          color: Color(0xfff62f2f),
                           fontWeight: FontWeight.w900,
-                          fontSize: 16,
+                          fontSize: 16.5,
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          Cart.addItem(context, item); // ✅ NO MORE ERROR
-                        },
+                        onTap: () => Cart.addItem(context, item),
                         child: const Icon(
                           Icons.add_shopping_cart_rounded,
                           color: Colors.blueAccent,
-                          size: 20,
+                          size: 22,
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ],

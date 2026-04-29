@@ -11,11 +11,12 @@ class ProductDetail extends StatelessWidget {
   void _showActionSheet(BuildContext context, String buttonTitle) {
     double basePrice =
         double.tryParse(product['price']?.replaceAll(',', '') ?? "0") ?? 0.0;
+    int stock = int.tryParse(product['stock'] ?? "0") ?? 0;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xff0f172a),
+      backgroundColor: const Color.fromARGB(255, 27, 35, 61),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
@@ -70,6 +71,17 @@ class ProductDetail extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            Text(
+                              "Stock: $stock",
+                              style: TextStyle(
+                                color: stock == 0
+                                    ? Colors.red
+                                    : stock < 5
+                                        ? Colors.orange
+                                        : Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -101,7 +113,11 @@ class ProductDetail extends StatelessWidget {
                             style: const TextStyle(color: Colors.white),
                           ),
                           IconButton(
-                            onPressed: () => setModalState(() => quantity++),
+                            onPressed: () {
+                              if (quantity < stock) {
+                                setModalState(() => quantity++);
+                              }
+                            },
                             icon: const Icon(Icons.add, color: Colors.red),
                           ),
                         ],
@@ -127,17 +143,19 @@ class ProductDetail extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SelectAddress(
-                              pendingItems: [],
-                            ),
-                          ),
-                        );
-                      },
+                      onPressed: stock == 0
+                          ? null
+                          : () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const SelectAddress(
+                                    pendingItems: [],
+                                  ),
+                                ),
+                              );
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xfff62f2f),
                         foregroundColor: Colors.white,
@@ -206,7 +224,7 @@ class ProductDetail extends StatelessWidget {
     final meta = getMeta();
 
     return Scaffold(
-      backgroundColor: const Color(0xff0b1220),
+      backgroundColor: const Color.fromARGB(255, 27, 35, 61),
 
       // APPBAR
       floatingActionButton: Container(
